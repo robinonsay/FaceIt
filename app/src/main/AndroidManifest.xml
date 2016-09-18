@@ -32,7 +32,7 @@
                 android:resource="@xml/method" />
         </service>
 
-        <activity android:name=".CameraOpenActivity" android:theme="@style/AlertDialog.AppCompat"></activity>
+        <activity android:name=".CameraOpenActivity" android:theme="@style/AlertDialog.AppCompat.Light"></activity>
     </application>
 
 </manifest>

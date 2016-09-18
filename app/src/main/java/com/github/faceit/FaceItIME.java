@@ -109,6 +109,12 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         switch(primaryCode){
+            case Keyboard.KEYCODE_DELETE :
+                inputConnection.deleteSurroundingText(1, 0);
+                break;
+            case 32:
+                inputConnection.commitText(" ", 1);
+                break;
             case 0:
                 Intent i = new Intent(this, CameraOpenActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

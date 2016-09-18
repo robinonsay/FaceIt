@@ -9,4 +9,8 @@
         <Key android:codes="0" android:keyLabel="Camera" android:keyWidth="50%p" android:keyEdgeFlags="left" />
         <Key android:codes="1" android:keyLabel="Keyboard" android:keyWidth="50%p" android:keyEdgeFlags="right"/>
     </Row>
+    <Row>
+        <Key android:codes="32" android:keyLabel="space" android:keyWidth="80%p" android:isRepeatable="true"/>
+        <Key android:codes="-5" android:keyLabel="del" android:keyWidth="20%p" android:isRepeatable="true"/>
+    </Row>
 </Keyboard>

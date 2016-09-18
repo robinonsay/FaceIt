@@ -19,8 +19,11 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.Window;
 import android.view.inputmethod.InputConnection;
 import android.widget.FrameLayout;
+import android.widget.ProgressBar;
 import android.widget.Toast;
 
 import org.apache.http.HttpResponse;
@@ -63,18 +66,23 @@ public class CameraOpenActivity extends Activity{
     private static final String TAG = CameraOpenActivity.class.getSimpleName();
 
         static MediaMetadataRetriever retriever = null;
-
+    private static boolean isSending = false;
+    private ProgressBar spinner;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        setContentView(R.layout.loading_activity);
+        spinner = (ProgressBar)findViewById(R.id.progressBar1);
+        spinner.setVisibility(View.VISIBLE);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        dispatchTakeVideoIntent();
+        if(!isSending) {
+            dispatchTakeVideoIntent();
+        }
     }
 
     static final int REQUEST_IMAGE_CAPTURE = 1;
@@ -119,6 +127,13 @@ public class CameraOpenActivity extends Activity{
             File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "myPhoto.jpg");
             Uri uri = Uri.fromFile(file);
             new AsyncTask<File, Void, Void>(){
+                @Override
+                protected void onPreExecute() {
+                    super.onPreExecute();
+                    setProgressBarIndeterminateVisibility(true);
+                    isSending = true;
+
+                }
 
                 @Override
                 protected Void doInBackground(File... params) {
@@ -156,6 +171,7 @@ public class CameraOpenActivity extends Activity{
                 protected void onPostExecute(Void aVoid) {
                     Log.d(TAG, "onPostExecute: CALLED");
                     Toast.makeText(getApplicationContext(), "Done", Toast.LENGTH_SHORT);
+                    isSending = false;
                     finish();
                 }
             }.execute(file);
