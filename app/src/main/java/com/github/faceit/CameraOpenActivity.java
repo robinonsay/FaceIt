@@ -7,6 +7,7 @@ import android.hardware.Camera;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaRecorder;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -22,15 +23,41 @@ import android.view.inputmethod.InputConnection;
 import android.widget.FrameLayout;
 import android.widget.Toast;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.InputStreamEntity;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.impl.conn.DefaultClientConnection;
+import org.apache.http.util.EntityUtils;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
+import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 
 import wseemann.media.FFmpegMediaMetadataRetriever;
+
+//import org.apache.http.HttpResponse;
+//import org.apache.http.client.HttpClient;
+//import org.apache.http.client.methods.HttpPost;
+//import org.apache.http.entity.mime.HttpMultipartMode;
+//import org.apache.http.entity.mime.MultipartEntity;
+//import org.apache.http.entity.mime.content.FileBody;
+//import org.apache.http.entity.mime.content.StringBody;
+//import org.apache.http.impl.client.DefaultHttpClient;
+//import org.apache.http.protocol.BasicHttpContext;
+//import org.apache.http.protocol.HttpContext;
+//import org.apache.http.util.EntityUtils;
 
 public class CameraOpenActivity extends Activity{
     private static final String TAG = CameraOpenActivity.class.getSimpleName();
@@ -91,15 +118,53 @@ public class CameraOpenActivity extends Activity{
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == RESULT_OK) {
             File file = new File(Environment.getExternalStorageDirectory().getAbsolutePath(), "myPhoto.jpg");
             Uri uri = Uri.fromFile(file);
+            new AsyncTask<File, Void, Void>(){
+
+                @Override
+                protected Void doInBackground(File... params) {
+                    File file = params[0];
+                    String url = "http://52.232.128.109/calculateBigMassiveDicksForHarambe";
+                    HttpClient client = new DefaultHttpClient();
+                    HttpPost httppost = new HttpPost(url);
+                    InputStreamEntity reqEntity = null;
+                    try {
+                        reqEntity = new InputStreamEntity(
+                                new FileInputStream(file), -1);
+                    } catch (FileNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    reqEntity.setContentType("binary/octet-stream");
+                    reqEntity.setChunked(true); // Send in multiple parts if needed
+                    httppost.setEntity(reqEntity);
+                    try {
+                        HttpResponse response = client.execute(httppost);
+                        String st = EntityUtils.toString(response.getEntity());
+                        Intent intent = new Intent("faceit");
+                        JSONObject j = new JSONObject(st);
+                        st = j.getString("text");
+                        intent.putExtra("message", st);
+                        LocalBroadcastManager.getInstance(CameraOpenActivity.this).sendBroadcast(intent);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void onPostExecute(Void aVoid) {
+                    Log.d(TAG, "onPostExecute: CALLED");
+                    Toast.makeText(getApplicationContext(), "Done", Toast.LENGTH_SHORT);
+                    finish();
+                }
+            }.execute(file);
             Bitmap bitmap;
             try {
                 bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), uri);
                 bitmap = crupAndScale(bitmap, 300); // if you mind scaling
                 Log.d(TAG, String.valueOf(bitmap));
-                Intent intent = new Intent("faceit");
-                intent.putExtra("message", "This is my message! " + bitmap);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
-                finish();
+//                finish();
             } catch (FileNotFoundException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -161,3 +226,33 @@ public class CameraOpenActivity extends Activity{
 
     }
 }
+
+//    URL url = new URL("http://52.232.128.109/calculateBigMassiveDicksForHarambe");
+//    HttpURLConnection httpUrlConnection = (HttpURLConnection) url.openConnection();
+//httpUrlConnection.setUseCaches(false);
+//        httpUrlConnection.setDoOutput(true);
+//        httpUrlConnection.setRequestMethod("POST");
+//        httpUrlConnection.setRequestProperty("Connection", "Keep-Alive");
+//        httpUrlConnection.setRequestProperty("Cache-Control", "no-cache");
+//        Http
+
+//    File file = params[0];
+//    String url = "http://52.232.128.109/calculateBigMassiveDicksForHarambe";
+//    HttpClient client = new DefaultHttpClient();
+//    HttpPost httppost = new HttpPost(url);
+//    InputStreamEntity reqEntity = null;
+//try {
+//        reqEntity = new InputStreamEntity(
+//        new FileInputStream(file), -1);
+//        } catch (FileNotFoundException e) {
+//        e.printStackTrace();
+//        }
+//        reqEntity.setContentType("binary/octet-stream");
+//        reqEntity.setChunked(true); // Send in multiple parts if needed
+//        httppost.setEntity(reqEntity);
+//        try {
+//        HttpResponse response = client.execute(httppost);
+//
+//        } catch (IOException e) {
+//        e.printStackTrace();
+//        }

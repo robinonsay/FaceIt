@@ -3,7 +3,10 @@ apply plugin: 'com.android.application'
 android {
     compileSdkVersion 23
     buildToolsVersion "23.0.3"
-
+    useLibrary  'org.apache.http.legacy'
+    packagingOptions {
+//        exclude 'META-INF/'
+    }
     defaultConfig {
         applicationId "com.github.faceit"
         minSdkVersion 19
@@ -24,4 +27,24 @@ dependencies {
     testCompile 'junit:junit:4.12'
     compile 'com.android.support:appcompat-v7:23.4.0'
     compile 'com.github.wseemann:FFmpegMediaMetadataRetriever:1.0.11'
+//    compile "org.apache.httpcomponents:httpmime:4.2.6"
+//    compile 'org.apache.httpcomponents:httpclient:4.2.6'
+//    // https://mvnrepository.com/artifact/org.apache.httpcomponents/httpclient
+//    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5'
+
+
+    // https://mvnrepository.com/artifact/org.apache.james/apache-mime4j
+//    compile group: 'org.apache.james', name: 'apache-mime4j', version: '0.6.1'
+
+
+// https://mvnrepository.com/artifact/org.apache.httpcomponents/httpmime
+//    compile group: 'org.apache.httpcomponents', name: 'httpmime', version: '4.5.2'
+//
+//
+//    compile 'org.apache.httpcomponents:httpcore:4.4.1'
+//    compile 'org.apache.httpcomponents:httpclient:4.5'
+
+
+
+
 }

@@ -17,6 +17,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -58,6 +59,16 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
     }
 
     @Override
+    public void onStartInputView(EditorInfo info, boolean restarting) {
+        super.onStartInputView(info, restarting);
+        inputConnection = getCurrentInputConnection();
+        if(message != null){
+            inputConnection.commitText(message, 1);
+            message = null;
+        }
+    }
+
+    @Override
     public void onFinishInput() {
         if(isFinished){
             Log.d(TAG, "onFinishInput: FINISH INPUT");
@@ -80,36 +91,8 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
         @Override
         public void onReceive(Context context, Intent intent) {
             message = intent.getStringExtra("message");
-            inputConnection = getCurrentInputConnection();
-            Log.d("receiver", "Got message: " + message);
-            inputConnection.commitText("Got Message" + message, 1);
-            Log.d(TAG, "onReceive: inputConnection "  + inputConnection);
+            imm.showSoftInput(FaceItIME.this.getWindow().getWindow().getCurrentFocus(), InputMethodManager.SHOW_FORCED);
             isFinished = true;
-//            Handler handler = new Handler(Looper.getMainLooper());
-//            handler.post(new Runnable() {
-//                @Override
-//                public void run() {
-//
-//                    inputConnection = getCurrentInputConnection();
-//                    Log.d("receiver", "Got message: " + message);
-//                    inputConnection.commitText("Got Message" + message, 1);
-//                    ((EditText) getWindow().getWindow().getCurrentFocus()).append(message);
-//                    Log.d(TAG, "onReceive: inputConnection "  + inputConnection);
-//                    isFinished = true;
-//                }
-//            });
-            /*imm.showSoftInput(FaceItIME.this.getWindow().getWindow().getCurrentFocus(), InputMethodManager.SHOW_FORCED,
-                    new ResultReceiver(new Handler(Looper.getMainLooper())) {
-                        @Override
-                        protected void onReceiveResult(int resultCode, Bundle resultData) {
-                            inputConnection = getCurrentInputConnection();
-                            Log.d("receiver", "Got message: " + message);
-                            inputConnection.commitText("Got Message" + message, 1);
-                            Log.d(TAG, "onReceive: inputConnection "  + inputConnection);
-                            isFinished = true;
-                        }
-                    });*/
-
         }
     };
 
@@ -125,35 +108,30 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
 
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
-        inputConnection = getCurrentInputConnection();
-        if(message != null){
-            inputConnection.commitText(message, 1);
-            message = null;
-        }else{
-            switch(primaryCode){
-                case 0:
-                    Intent i = new Intent(this, CameraOpenActivity.class);
-                    i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    startActivity(i);
+        switch(primaryCode){
+            case 0:
+                Intent i = new Intent(this, CameraOpenActivity.class);
+                i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(i);
 //                inputConnection.commitText("Hello World", 1);
-                    break;
-                case 1:
-                    try {
+                break;
+            case 1:
+                try {
 
-                        final IBinder token = this.getWindow().getWindow().getAttributes().token;
-                        //imm.setInputMethod(token, LATIN);
-                        imm.switchToLastInputMethod(token);
-                    } catch (Throwable t) { // java.lang.NoSuchMethodError if API_level<11
-                        Log.e(TAG,"cannot set the previous input method:");
-                        t.printStackTrace();
-                    }
-                    break;
-            }
+                    final IBinder token = this.getWindow().getWindow().getAttributes().token;
+                    //imm.setInputMethod(token, LATIN);
+                    imm.switchToLastInputMethod(token);
+                } catch (Throwable t) { // java.lang.NoSuchMethodError if API_level<11
+                    Log.e(TAG,"cannot set the previous input method:");
+                    t.printStackTrace();
+                }
+                break;
         }
     }
 
     @Override
     public void onText(CharSequence text) {
+        Log.d(TAG, "onText: TEXT CALLED");
 
     }
 
