@@ -6,9 +6,7 @@ import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.os.IBinder;
-import android.provider.MediaStore;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
@@ -25,6 +23,8 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
 
     private boolean caps = false;
 
+    public static InputConnection inputConnection;
+
     @Override
     public View onCreateInputView() {
 //        return super.onCreateInputView();
@@ -33,6 +33,11 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
         kv.setKeyboard(keyboard);
         kv.setOnKeyboardActionListener(this);
         return kv;
+    }
+
+    @Override
+    public void onCreate() {
+        super.onCreate();
     }
 
     @Override
@@ -48,11 +53,13 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
         InputConnection ic = getCurrentInputConnection();
+        inputConnection = ic;
         switch(primaryCode){
             case 0:
                 Intent i = new Intent(this, CameraOpenActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
+                inputConnection.commitText("Hello World 0", 1);
                 break;
             case 1:
                 try {
