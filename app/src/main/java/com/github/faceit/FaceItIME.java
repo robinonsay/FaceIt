@@ -1,13 +1,18 @@
 package com.github.faceit;
 
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.inputmethodservice.InputMethodService;
 import android.inputmethodservice.Keyboard;
 import android.inputmethodservice.KeyboardView;
 import android.os.IBinder;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.InputConnection;
 import android.view.inputmethod.InputMethodManager;
 
@@ -22,8 +27,11 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
     private Keyboard keyboard;
 
     private boolean caps = false;
+    private LocalBroadcastManager localBroadcast;
+    private InputConnection inputConnection;
 
-    public static InputConnection inputConnection;
+    private boolean isFinished = false;
+    private InputMethodManager imm;
 
     @Override
     public View onCreateInputView() {
@@ -38,7 +46,42 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
     @Override
     public void onCreate() {
         super.onCreate();
+        localBroadcast = LocalBroadcastManager.getInstance(getApplicationContext());
+        localBroadcast.registerReceiver(broadcastReceiver, new IntentFilter("faceit"));
+        imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+
     }
+
+    @Override
+    public void onFinishInput() {
+        if(isFinished){
+            Log.d(TAG, "onFinishInput: FINISH INPUT");
+            super.onFinishInput();
+            isFinished = false;
+        }
+
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG, "onDestroy: DESTROY");
+        localBroadcast.unregisterReceiver(broadcastReceiver);
+    }
+
+
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+//            inputConnection = getCurrentInputConnection();
+            String message = intent.getStringExtra("message");
+            Log.d("receiver", "Got message: " + message);
+            inputConnection.commitText("Got Message" + message, 1);
+            imm.toggleSoftInput(InputMethodManager.SHOW_FORCED, InputMethodManager.HIDE_IMPLICIT_ONLY);
+            isFinished = true;
+        }
+    };
 
     @Override
     public void onPress(int primaryCode) {
@@ -52,18 +95,17 @@ public class FaceItIME extends InputMethodService implements KeyboardView.OnKeyb
 
     @Override
     public void onKey(int primaryCode, int[] keyCodes) {
-        InputConnection ic = getCurrentInputConnection();
-        inputConnection = ic;
+        inputConnection = getCurrentInputConnection();
         switch(primaryCode){
             case 0:
                 Intent i = new Intent(this, CameraOpenActivity.class);
                 i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(i);
-                inputConnection.commitText("Hello World 0", 1);
+//                inputConnection.commitText("Hello World", 1);
                 break;
             case 1:
                 try {
-                    InputMethodManager imm = (InputMethodManager) this.getSystemService(Context.INPUT_METHOD_SERVICE);
+
                     final IBinder token = this.getWindow().getWindow().getAttributes().token;
                     //imm.setInputMethod(token, LATIN);
                     imm.switchToLastInputMethod(token);

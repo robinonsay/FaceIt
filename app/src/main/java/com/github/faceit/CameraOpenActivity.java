@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v4.content.FileProvider;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -26,13 +27,10 @@ import java.util.Date;
 
 public class CameraOpenActivity extends Activity{
     private static final String TAG = CameraOpenActivity.class.getSimpleName();
-    private InputConnection ic;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        ic = FaceItIME.inputConnection;
-
 
     }
 
@@ -56,8 +54,9 @@ public class CameraOpenActivity extends Activity{
         if (requestCode == REQUEST_VIDEO_CAPTURE && resultCode == RESULT_OK) {
             Uri videoUri = data.getData();
             Log.d(TAG, "onActivityResult: " + videoUri.getPath());
-            Log.d(TAG, "onActivityResult: " + ic.toString());
-            ic.commitText("Hello World 1", 1);
+            Intent intent = new Intent("faceit");
+            intent.putExtra("message", "This is my message! " + videoUri.getPath());
+            LocalBroadcastManager.getInstance(this).sendBroadcast(intent);
             finish();
         }
     }
